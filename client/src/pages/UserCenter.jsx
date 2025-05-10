@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Upload, message, Layout } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { updateUserInfo } from '@/api/userApi';
 import { useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;

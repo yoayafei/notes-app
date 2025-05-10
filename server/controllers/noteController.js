@@ -5,7 +5,7 @@ export const createNote = async (req, res) => {
   try {
     const { userId, title, content, categoryId, tags } = req.body;
     const [result] = await pool.query(
-      "INSERT INTO notes (user_id, title, content, category_id, tags) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO notes (user_id, title, content, category_id, tags, deleted) VALUES (?, ?, ?, ?, ?, 0)",
       [userId, title, content, categoryId, JSON.stringify(tags)]
     );
     res.status(201).json({
