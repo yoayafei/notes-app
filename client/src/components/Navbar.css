@@ -1,0 +1,71 @@
+/* .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #408fae;
+  padding: 0.5rem 1rem;
+}
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-menu li a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+}
+
+.nav-menu li.active a {
+  color: #408fae;
+  background-color: #fff;
+}
+
+.login-link {
+  color: #799ecf;
+  text-decoration: none;
+  font-size: 1rem;
+} */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #408fae;
+  padding: 0.5rem 1rem;
+}
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem; /* 增加导航项之间的间距 */
+  margin: 0;
+  padding: 0;
+}
+
+.nav-menu li a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem 1rem; /* 减少内边距 */
+  transition: color 0.3s; /* 添加颜色过渡效果 */
+}
+
+.nav-menu li a:hover {
+  color: #5598b2; /* 悬停时改变颜色 */
+}
+
+.nav-menu li.ant-menu-item-selected a {
+  color: #fff; /* 选中时改变颜色 */
+}
+
+.login-link {
+  color: #799ecf;
+  text-decoration: none;
+  font-size: 1rem;
+}
