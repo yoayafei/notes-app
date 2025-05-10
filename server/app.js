@@ -27,7 +27,7 @@ app.use(
   })
 );
 
-// app.use(express.json({ limit: "10mb" }));
+app.use(express.json());
 
 app.use("/api/users", useRoutes);
 app.use("/api/notes", noteRoutes);

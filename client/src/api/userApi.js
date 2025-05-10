@@ -20,14 +20,9 @@ export const logout = async () => {
   }
 };
 
-export const updateUserInfo = async (userId, userData) => {
-  return axiosInstance.put(`/users/${userId}`, userData);
-};
-
 export default {
   registerUser,
   loginUser,
   getUser,
   logout,
-  updateUserInfo,
 };
