@@ -12,6 +12,10 @@ export const getUser = async (userId) => {
   return axiosInstance.get(`/users/${userId}`);
 };
 
+export const updateUserInfo = async (userId, userData) => {
+  return axiosInstance.put(`/users/${userId}`, userData);
+};
+
 export const logout = async () => {
   try {
     await axiosInstance.post('/users/logout');
@@ -24,5 +28,6 @@ export default {
   registerUser,
   loginUser,
   getUser,
+  updateUserInfo,
   logout,
 };
