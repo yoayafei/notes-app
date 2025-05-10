@@ -54,12 +54,7 @@ const UserCenter = () => {
     }
   };
 
-  const handleLogout = () => {
-    // 清除用户状态
-    localStorage.removeItem('user');
-    message.success('已退出登录');
-    navigate('/login');
-  };
+  // 退出登录功能已移至导航栏头像悬浮卡片中
 
   const handleBack = () => {
     navigate(-1); // 返回上一页
@@ -108,13 +103,7 @@ const UserCenter = () => {
           保存
         </Button>
       </Form>
-      <Button
-        type="danger"
-        onClick={handleLogout}
-        style={{ marginTop: '20px', width: '100%' }}
-      >
-        退出登录
-      </Button>
+      {/* 退出登录按钮已移至导航栏头像悬浮卡片中 */}
     </Content>
   );
 };

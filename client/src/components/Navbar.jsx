@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Avatar, Space, Typography } from 'antd';
+import { Layout, Menu, Avatar, Space, Typography, Popover, Button } from 'antd';
 import {
   UserOutlined,
   HomeOutlined,
   AppstoreOutlined,
   FileOutlined,
   DeleteOutlined,
+  EditOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { useStore } from '@/store/userStore';
 
@@ -100,20 +102,46 @@ const Navbar = () => {
       />
       <div>
         {user ? (
-          <Space onClick={() => navigate('/user-center')}>
-            {user.avatar_url ? (
-              <Avatar
-                src={user.avatar_url}
-                onClick={() => navigate('/user-center')}
-                style={{ cursor: 'pointer' }}
-              />
-            ) : (
-              <Avatar icon={<UserOutlined />} />
-            )}
-            <Text className="ml-2" style={{ color: '#fff' }}>
-              {user.nickname || user.username}
-            </Text>
-          </Space>
+          <Popover
+            content={
+              <div style={{ width: '200px' }}>
+                <Button
+                  type="text"
+                  icon={<EditOutlined />}
+                  onClick={() => navigate('/user-center')}
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    marginBottom: '8px',
+                  }}
+                >
+                  修改用户信息
+                </Button>
+                <Button
+                  type="text"
+                  icon={<LogoutOutlined />}
+                  onClick={handleLogout}
+                  style={{ width: '100%', textAlign: 'left', color: '#ff4d4f' }}
+                >
+                  退出登录
+                </Button>
+              </div>
+            }
+            title="用户选项"
+            trigger="hover"
+            placement="bottom"
+          >
+            <Space>
+              {user.avatar_url ? (
+                <Avatar src={user.avatar_url} style={{ cursor: 'pointer' }} />
+              ) : (
+                <Avatar icon={<UserOutlined />} style={{ cursor: 'pointer' }} />
+              )}
+              <Text className="ml-2" style={{ color: '#fff' }}>
+                {user.nickname || user.username}
+              </Text>
+            </Space>
+          </Popover>
         ) : (
           <Button type="primary" onClick={() => navigate('/login')}>
             登录
