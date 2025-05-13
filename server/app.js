@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import useRoutes from "./routes/userRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -28,6 +30,20 @@ app.use(
 );
 
 app.use(express.json());
+
+// 获取当前文件的目录路径
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 创建上传目录（如果不存在）
+const uploadDir = path.join(__dirname, "public/uploads/avatars");
+import fs from "fs";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// 配置静态文件服务
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/users", useRoutes);
 app.use("/api/notes", noteRoutes);
