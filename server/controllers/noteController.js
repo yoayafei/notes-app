@@ -21,29 +21,69 @@ export const createNote = async (req, res) => {
   }
 };
 
-// 获取笔记列表
+// 获取笔记列表（支持分页）
 export const getNotes = async (req, res) => {
   try {
     const { userId } = req.params;
-    const [rows] = await pool.query(
-      "SELECT * FROM notes WHERE user_id = ? AND deleted = 0",
+    const { page = 1, pageSize = 10 } = req.query;
+
+    // 计算偏移量
+    const offset = (parseInt(page) - 1) * parseInt(pageSize);
+    const limit = parseInt(pageSize);
+
+    // 获取总记录数
+    const [countResult] = await pool.query(
+      "SELECT COUNT(*) as total FROM notes WHERE user_id = ? AND deleted = 0",
       [userId]
     );
-    res.status(200).json(rows);
+    const total = countResult[0].total;
+
+    // 获取分页数据
+    const [rows] = await pool.query(
+      "SELECT * FROM notes WHERE user_id = ? AND deleted = 0 LIMIT ? OFFSET ?",
+      [userId, limit, offset]
+    );
+
+    res.status(200).json({
+      notes: rows,
+      total,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// 根据分类获取笔记列表
+// 根据分类获取笔记列表（支持分页）
 export const getNotesByCategory = async (req, res) => {
   try {
     const { userId, categoryId } = req.params;
-    const [rows] = await pool.query(
-      "SELECT * FROM notes WHERE user_id = ? AND category_id = ? AND deleted = 0",
+    const { page = 1, pageSize = 10 } = req.query;
+
+    // 计算偏移量
+    const offset = (parseInt(page) - 1) * parseInt(pageSize);
+    const limit = parseInt(pageSize);
+
+    // 获取总记录数
+    const [countResult] = await pool.query(
+      "SELECT COUNT(*) as total FROM notes WHERE user_id = ? AND category_id = ? AND deleted = 0",
       [userId, categoryId]
     );
-    res.status(200).json(rows);
+    const total = countResult[0].total;
+
+    // 获取分页数据
+    const [rows] = await pool.query(
+      "SELECT * FROM notes WHERE user_id = ? AND category_id = ? AND deleted = 0 LIMIT ? OFFSET ?",
+      [userId, categoryId, limit, offset]
+    );
+
+    res.status(200).json({
+      notes: rows,
+      total,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -126,15 +166,35 @@ export const moveToTrash = async (req, res) => {
   }
 };
 
-// 获取回收站中的笔记
+// 获取回收站中的笔记（支持分页）
 export const getTrashNotes = async (req, res) => {
   try {
     const { userId } = req.params;
-    const [rows] = await pool.query(
-      "SELECT * FROM notes WHERE user_id = ? AND deleted = 1",
+    const { page = 1, pageSize = 10 } = req.query;
+
+    // 计算偏移量
+    const offset = (parseInt(page) - 1) * parseInt(pageSize);
+    const limit = parseInt(pageSize);
+
+    // 获取总记录数
+    const [countResult] = await pool.query(
+      "SELECT COUNT(*) as total FROM notes WHERE user_id = ? AND deleted = 1",
       [userId]
     );
-    res.status(200).json(rows);
+    const total = countResult[0].total;
+
+    // 获取分页数据
+    const [rows] = await pool.query(
+      "SELECT * FROM notes WHERE user_id = ? AND deleted = 1 LIMIT ? OFFSET ?",
+      [userId, limit, offset]
+    );
+
+    res.status(200).json({
+      notes: rows,
+      total,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -45,10 +45,14 @@ const Home = () => {
     const fetchNotes = async () => {
       try {
         const fetchNotesData = await getNotes(user ? user.id : null);
-        setNotes(fetchNotesData.data);
-        setFilteredNotes(fetchNotesData.data);
+        const notesData =
+          fetchNotesData.data.notes || fetchNotesData.data || [];
+        setNotes(notesData);
+        setFilteredNotes(notesData);
       } catch (error) {
         console.error('Failed to fetch notes:', error);
+        setNotes([]);
+        setFilteredNotes([]);
       }
     };
     fetchNotes();
@@ -115,23 +119,31 @@ const Home = () => {
             示例笔记
           </Title>
           <Row gutter={[16, 16]}>
-            {filteredNotes.slice(0, 4).map((note) => (
-              <Col span={12} key={note.id}>
-                <Card
-                  hoverable
-                  style={{
-                    backgroundColor: '#fff',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                  }}
-                >
-                  <Card.Meta
-                    title={note.title}
-                    description={note.content.substring(0, 100) + '...'}
-                  />
-                  <a href={`/notes/${note.id}`}>查看详情</a>
+            {Array.isArray(filteredNotes) && filteredNotes.length > 0 ? (
+              filteredNotes.slice(0, 4).map((note) => (
+                <Col span={12} key={note.id}>
+                  <Card
+                    hoverable
+                    style={{
+                      backgroundColor: '#fff',
+                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    }}
+                  >
+                    <Card.Meta
+                      title={note.title}
+                      description={note.content.substring(0, 100) + '...'}
+                    />
+                    <a href={`/notes/${note.id}`}>查看详情</a>
+                  </Card>
+                </Col>
+              ))
+            ) : (
+              <Col span={24}>
+                <Card>
+                  <Text>暂无笔记</Text>
                 </Card>
               </Col>
-            ))}
+            )}
           </Row>
         </div>
       </Content>

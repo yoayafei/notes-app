@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, List, Card, Button, message, Popconfirm } from 'antd';
+import {
+  Layout,
+  List,
+  Card,
+  Button,
+  message,
+  Popconfirm,
+  Pagination,
+} from 'antd';
 import { DeleteOutlined, UndoOutlined } from '@ant-design/icons';
 import {
   getTrashNotes,
@@ -15,12 +23,26 @@ const TrashPage = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useStore();
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   // 获取已删除的笔记
-  const fetchDeletedNotes = async () => {
+  const fetchDeletedNotes = async (
+    page = pagination.current,
+    pageSize = pagination.pageSize,
+  ) => {
     try {
-      const response = await getTrashNotes(user.id);
-      setNotes(response.data);
+      setLoading(true);
+      const response = await getTrashNotes(user.id, page, pageSize);
+      setNotes(response.data.notes || []);
+      setPagination({
+        ...pagination,
+        current: page,
+        total: response.data.total || 0,
+      });
     } catch (error) {
       message.error('获取回收站笔记失败');
     } finally {
@@ -51,8 +73,10 @@ const TrashPage = () => {
   };
 
   useEffect(() => {
-    fetchDeletedNotes();
-  }, []);
+    if (user && user.id) {
+      fetchDeletedNotes(1);
+    }
+  }, [user]);
 
   return (
     <>
@@ -102,6 +126,19 @@ const TrashPage = () => {
             </List.Item>
           )}
         />
+
+        <div style={{ textAlign: 'center', margin: '20px 0' }}>
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            onChange={(page, pageSize) => {
+              fetchDeletedNotes(page, pageSize);
+            }}
+            showSizeChanger={false}
+            showTotal={(total) => `共 ${total} 条笔记`}
+          />
+        </div>
       </Content>
     </>
   );

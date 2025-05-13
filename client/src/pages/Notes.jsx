@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { List, Card, Tag, Button, Modal, message } from 'antd';
+import { List, Card, Tag, Button, Modal, message, Pagination } from 'antd';
 import { getNotes, moveToTrash } from '@/api/noteApi';
 import { useStore } from '@/store/userStore';
 import { useNavigate } from 'react-router-dom';
@@ -12,15 +12,28 @@ const Notes = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   useEffect(() => {
     if (!user) navigate('/login');
   }, [user, navigate]);
 
-  const fetchNotes = async () => {
+  const fetchNotes = async (
+    page = pagination.current,
+    pageSize = pagination.pageSize,
+  ) => {
     try {
-      const fetchNotesData = await getNotes(user.id);
-      setNotes(fetchNotesData.data);
+      const fetchNotesData = await getNotes(user.id, page, pageSize);
+      setNotes(fetchNotesData.data.notes || []);
+      setPagination({
+        ...pagination,
+        current: page,
+        total: fetchNotesData.data.total || 0,
+      });
     } catch (error) {
       console.error('Failed to fetch notes:', error);
       message.error('获取笔记失败');
@@ -28,7 +41,7 @@ const Notes = () => {
   };
 
   useEffect(() => {
-    fetchNotes();
+    fetchNotes(1);
   }, []);
 
   const handleDelete = async () => {
@@ -111,6 +124,19 @@ const Notes = () => {
       >
         <p>确定要将这条笔记移至回收站吗？</p>
       </Modal>
+
+      <div style={{ textAlign: 'center', margin: '20px 0' }}>
+        <Pagination
+          current={pagination.current}
+          pageSize={pagination.pageSize}
+          total={pagination.total}
+          onChange={(page, pageSize) => {
+            fetchNotes(page, pageSize);
+          }}
+          showSizeChanger={false}
+          showTotal={(total) => `共 ${total} 条笔记`}
+        />
+      </div>
     </>
   );
 };

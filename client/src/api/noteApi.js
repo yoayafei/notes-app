@@ -5,9 +5,11 @@ export const createNote = async (noteData) => {
   return axiosInstance.post('/notes', noteData);
 };
 
-// 查询某个用户的所有笔记
-export const getNotes = async (userId) => {
-  return axiosInstance.get(`/notes/user/${userId}`);
+// 查询某个用户的所有笔记，支持分页
+export const getNotes = async (userId, page = 1, pageSize = 10) => {
+  return axiosInstance.get(`/notes/user/${userId}`, {
+    params: { page, pageSize },
+  });
 };
 
 // 根据标签、分类或标题搜索笔记
@@ -22,9 +24,16 @@ export const getNote = async (noteId) => {
   return axiosInstance.get(`/notes/${noteId}`);
 };
 
-// 查询某个用户某类的所有笔记
-export const getNotesByCategory = async (userId, categoryId) => {
-  return axiosInstance.get(`/notes/categories/${userId}/${categoryId}`);
+// 查询某个用户某类的所有笔记，支持分页
+export const getNotesByCategory = async (
+  userId,
+  categoryId,
+  page = 1,
+  pageSize = 10,
+) => {
+  return axiosInstance.get(`/notes/categories/${userId}/${categoryId}`, {
+    params: { page, pageSize },
+  });
 };
 
 // 更新笔记
@@ -38,9 +47,11 @@ export const moveToTrash = async (noteId) => {
 };
 
 // Get all notes in trash
-// 获取回收站中的笔记
-export const getTrashNotes = async (userId) => {
-  return await axiosInstance.get(`/notes/trash/${userId}`);
+// 获取回收站中的笔记，支持分页
+export const getTrashNotes = async (userId, page = 1, pageSize = 10) => {
+  return await axiosInstance.get(`/notes/trash/${userId}`, {
+    params: { page, pageSize },
+  });
 };
 
 // 从回收站恢复笔记

@@ -16,6 +16,14 @@ export const updateUserInfo = async (userId, userData) => {
   return axiosInstance.put(`/users/${userId}`, userData);
 };
 
+export const uploadAvatar = async (userId, formData) => {
+  return axiosInstance.post(`/users/${userId}/avatar`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
 export const logout = async () => {
   try {
     await axiosInstance.post('/users/logout');
@@ -29,5 +37,6 @@ export default {
   loginUser,
   getUser,
   updateUserInfo,
+  uploadAvatar,
   logout,
 };

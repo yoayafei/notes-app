@@ -33,7 +33,7 @@ const Login = () => {
         <Form name="login_form" onFinish={onSubmit} className="space-y-12">
           <Form.Item
             name="username"
-            initialValue="yyf" // 修正属性名
+            initialValue="" // 修正属性名
             rules={[{ required: true, message: '请输入用户名！' }]}
           >
             <Input
@@ -44,7 +44,7 @@ const Login = () => {
           </Form.Item>
           <Form.Item
             name="password"
-            initialValue="123456" // 修正属性名
+            initialValue="" // 修正属性名
             rules={[{ required: true, message: '请输入密码！' }]}
           >
             <Input.Password
