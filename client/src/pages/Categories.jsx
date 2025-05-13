@@ -53,12 +53,25 @@
 // export default Categories;
 
 import React, { useState, useEffect } from 'react';
-import { List, Card, Button, Modal, Form, Input, message } from 'antd';
-import { getCategories, createCategory } from '@/api/categoryApi';
+import {
+  List,
+  Card,
+  Button,
+  Modal,
+  Form,
+  Input,
+  message,
+  Popconfirm,
+} from 'antd';
+import {
+  getCategories,
+  createCategory,
+  deleteCategory,
+} from '@/api/categoryApi';
 import { useStore } from '@/store/userStore';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const Categories = () => {
   const navigate = useNavigate();
@@ -111,22 +124,27 @@ const Categories = () => {
     }
   };
 
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await deleteCategory(categoryId);
+      message.success('分类删除成功');
+      fetchCategoriesData(); // 刷新分类列表
+    } catch (error) {
+      console.error('Failed to delete category:', error);
+      message.error('删除分类失败');
+    }
+  };
+
   return (
     <>
       <Navbar />
       <div className="p-4">
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
             marginBottom: '20px',
           }}
         >
           <h1>分类列表</h1>
-          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-            添加分类
-          </Button>
         </div>
         <List
           grid={{ gutter: 16, column: 4 }}
@@ -140,13 +158,39 @@ const Categories = () => {
                   backgroundColor: '#fff',
                   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                 }}
+                actions={[
+                  <a key="view" href={`/notes/categories/${item.id}`}>
+                    查看分类笔记
+                  </a>,
+                  <Popconfirm
+                    key="delete"
+                    title="确定要删除这个分类吗？"
+                    description="删除后将无法恢复！"
+                    onConfirm={() => handleDeleteCategory(item.id)}
+                    okText="确定"
+                    cancelText="取消"
+                  >
+                    <Button type="text" danger icon={<DeleteOutlined />}>
+                      删除
+                    </Button>
+                  </Popconfirm>,
+                ]}
               >
                 <Card.Meta title={item.name} />
-                <a href={`/notes/categories/${item.id}`}>查看分类笔记</a>
               </Card>
             </List.Item>
           )}
         />
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showModal}
+            style={{ width: '200px' }}
+          >
+            添加分类
+          </Button>
+        </div>
 
         <Modal
           title="添加分类"
