@@ -25,19 +25,23 @@
 
 // export default Home;
 
-import { Layout, Typography, Button, Card, Row, Col } from 'antd';
+import { Layout, Typography, Button, Card, Tag, Modal, message } from 'antd';
 import Navbar from '@/components/Navbar';
 import { useStore } from '@/store/userStore';
 import { useEffect, useState } from 'react';
-import { getImportantNotes } from '@/api/noteApi';
+import { getImportantNotes, moveToTrash } from '@/api/noteApi';
+import { useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const Home = () => {
+  const navigate = useNavigate();
   const { user } = useStore();
   const [importantNotes, setImportantNotes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedNoteId, setSelectedNoteId] = useState(null);
 
   useEffect(() => {
     const fetchImportantNotes = async () => {
@@ -57,6 +61,34 @@ const Home = () => {
     };
     fetchImportantNotes();
   }, [user]);
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await moveToTrash(selectedNoteId);
+      message.success('笔记已移至回收站');
+      // 重新获取笔记列表
+      const fetchImportantNotes = async () => {
+        if (!user) return;
+        try {
+          const response = await getImportantNotes(user.id);
+          const notesData = response.data.notes || response.data || [];
+          setImportantNotes(notesData);
+        } catch (error) {
+          console.error('Failed to fetch important notes:', error);
+          setImportantNotes([]);
+        }
+      };
+      fetchImportantNotes();
+    } catch (error) {
+      console.error('Failed to delete note:', error);
+      message.error('删除笔记失败');
+    } finally {
+      setLoading(false);
+      setModalVisible(false);
+      setSelectedNoteId(null);
+    }
+  };
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
@@ -111,11 +143,12 @@ const Home = () => {
               importantNotes.map((note) => (
                 <Card
                   key={note.id}
+                  className="bg-white m-1"
                   hoverable
                   style={{
-                    backgroundColor: '#fff',
                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                     borderTop: '3px solid #1890ff',
+                    marginBottom: '8px',
                   }}
                 >
                   <Card.Meta
@@ -129,14 +162,50 @@ const Home = () => {
                           display: '-webkit-box',
                           WebkitLineClamp: 3,
                           WebkitBoxOrient: 'vertical',
+                          marginBottom: '10px',
                         }}
                       >
-                        {note.content}
+                        {note.content.substring(0, 100) + '...'}
                       </div>
                     }
                   />
-                  <div style={{ marginTop: '10px', textAlign: 'right' }}>
-                    <a href={`/notes/${note.id}`}>查看详情</a>
+                  <div className="my-2">
+                    {note.tags &&
+                      note.tags.map((tag) => (
+                        <Tag color="cyan" key={tag}>
+                          {tag}
+                        </Tag>
+                      ))}
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginTop: '8px',
+                    }}
+                  >
+                    <a href={`/notes/${note.id}`}>点击查看详情</a>
+                    <div>
+                      <Button
+                        type="primary"
+                        size="small"
+                        style={{ marginRight: '8px' }}
+                        onClick={() => navigate(`/notes/edit/${note.id}`)}
+                      >
+                        编辑
+                      </Button>
+                      <Button
+                        type="primary"
+                        danger
+                        size="small"
+                        onClick={() => {
+                          setSelectedNoteId(note.id);
+                          setModalVisible(true);
+                        }}
+                      >
+                        删除
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               ))
@@ -149,6 +218,19 @@ const Home = () => {
             )}
           </div>
         </div>
+
+        <Modal
+          title="确认删除"
+          open={modalVisible}
+          onOk={handleDelete}
+          confirmLoading={loading}
+          onCancel={() => {
+            setModalVisible(false);
+            setSelectedNoteId(null);
+          }}
+        >
+          <p>确定要将此笔记移至回收站吗？</p>
+        </Modal>
       </Content>
     </Layout>
   );
