@@ -233,3 +233,48 @@ export const deleteNote = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// 更新笔记重要性状态
+export const toggleImportant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isImportant } = req.body;
+    const importantValue = isImportant ? 1 : 0;
+
+    const [result] = await pool.query(
+      "UPDATE notes SET important = ? WHERE id = ?",
+      [importantValue, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    res.status(200).json({
+      message: isImportant
+        ? "Note marked as important"
+        : "Note unmarked as important",
+      important: importantValue,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 获取用户的重要笔记
+export const getImportantNotes = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [rows] = await pool.query(
+      "SELECT * FROM notes WHERE user_id = ? AND important = 1 AND deleted = 0",
+      [userId]
+    );
+
+    res.status(200).json({
+      notes: rows,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

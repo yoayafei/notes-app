@@ -10,6 +10,8 @@ import {
   deleteNote,
   getNotesByCategory,
   searchNotesByTags,
+  toggleImportant,
+  getImportantNotes,
 } from "../controllers/noteController.js";
 
 const router = express.Router();
@@ -23,6 +25,8 @@ router.get("/trash/:userId", getTrashNotes);
 router.put("/:id", updateNote);
 router.put("/:id/trash", moveToTrash);
 router.put("/:id/restore", restoreNote);
+router.put("/:id/important", toggleImportant);
+router.get("/important/:userId", getImportantNotes);
 router.delete("/:id", deleteNote);
 
 export default router;
