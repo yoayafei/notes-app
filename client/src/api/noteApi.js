@@ -41,6 +41,11 @@ export const updateNote = async (noteId, noteData) => {
   return axiosInstance.put(`/notes/${noteId}`, noteData);
 };
 
+// 更新笔记重要性状态
+export const toggleImportant = async (noteId, isImportant) => {
+  return axiosInstance.put(`/notes/${noteId}/important`, { isImportant });
+};
+
 // 删除笔记
 export const moveToTrash = async (noteId) => {
   return axiosInstance.put(`/notes/${noteId}/trash`);
@@ -64,6 +69,11 @@ export const deleteNotePermanently = async (noteId) => {
   return await axiosInstance.delete(`/notes/${noteId}`);
 };
 
+// 获取用户的重要笔记
+export const getImportantNotes = async (userId) => {
+  return axiosInstance.get(`/notes/important/${userId}`);
+};
+
 export default {
   createNote,
   getNotes,
@@ -75,4 +85,6 @@ export default {
   deleteNotePermanently,
   getNotesByCategory,
   searchNotesByTags,
+  toggleImportant,
+  getImportantNotes,
 };

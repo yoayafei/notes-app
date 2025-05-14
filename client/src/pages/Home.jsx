@@ -25,49 +25,38 @@
 
 // export default Home;
 
-import { Layout, Typography, Button, Card, Input, Row, Col } from 'antd';
+import { Layout, Typography, Button, Card, Row, Col } from 'antd';
 import Navbar from '@/components/Navbar';
 import { useStore } from '@/store/userStore';
 import { useEffect, useState } from 'react';
-import { getNotes } from '@/api/noteApi';
+import { getImportantNotes } from '@/api/noteApi';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
-const { Search } = Input;
 
 const Home = () => {
   const { user } = useStore();
-  const [notes, setNotes] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredNotes, setFilteredNotes] = useState([]);
+  const [importantNotes, setImportantNotes] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchNotes = async () => {
+    const fetchImportantNotes = async () => {
+      if (!user) return;
+
+      setLoading(true);
       try {
-        const fetchNotesData = await getNotes(user ? user.id : null);
-        const notesData =
-          fetchNotesData.data.notes || fetchNotesData.data || [];
-        setNotes(notesData);
-        setFilteredNotes(notesData);
+        const response = await getImportantNotes(user.id);
+        const notesData = response.data.notes || response.data || [];
+        setImportantNotes(notesData);
       } catch (error) {
-        console.error('Failed to fetch notes:', error);
-        setNotes([]);
-        setFilteredNotes([]);
+        console.error('Failed to fetch important notes:', error);
+        setImportantNotes([]);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchNotes();
+    fetchImportantNotes();
   }, [user]);
-
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = notes.filter((note) =>
-        note.title.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-      setFilteredNotes(filtered);
-    } else {
-      setFilteredNotes(notes);
-    }
-  }, [searchTerm, notes]);
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
@@ -102,49 +91,63 @@ const Home = () => {
         </Card>
 
         <div style={{ marginTop: '30px' }}>
-          <Search
-            placeholder="搜索笔记"
-            allowClear
-            enterButton="搜索"
-            size="large"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onSearch={(value) => setSearchTerm(value)}
-            style={{ width: '600px', margin: '0 auto', display: 'block' }}
-          />
-        </div>
-
-        <div style={{ marginTop: '30px' }}>
           <Title level={3} style={{ color: '#333' }}>
-            示例笔记
+            重要笔记
           </Title>
-          <Row gutter={[16, 16]}>
-            {Array.isArray(filteredNotes) && filteredNotes.length > 0 ? (
-              filteredNotes.slice(0, 4).map((note) => (
-                <Col span={12} key={note.id}>
-                  <Card
-                    hoverable
-                    style={{
-                      backgroundColor: '#fff',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    }}
-                  >
-                    <Card.Meta
-                      title={note.title}
-                      description={note.content.substring(0, 100) + '...'}
-                    />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '16px',
+              width: '66%',
+              margin: '0 auto',
+            }}
+          >
+            {loading ? (
+              <div style={{ gridColumn: 'span 2', textAlign: 'center' }}>
+                <Text>加载中...</Text>
+              </div>
+            ) : Array.isArray(importantNotes) && importantNotes.length > 0 ? (
+              importantNotes.map((note) => (
+                <Card
+                  key={note.id}
+                  hoverable
+                  style={{
+                    backgroundColor: '#fff',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    borderTop: '3px solid #1890ff',
+                  }}
+                >
+                  <Card.Meta
+                    title={note.title}
+                    description={
+                      <div
+                        style={{
+                          height: '80px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                        }}
+                      >
+                        {note.content}
+                      </div>
+                    }
+                  />
+                  <div style={{ marginTop: '10px', textAlign: 'right' }}>
                     <a href={`/notes/${note.id}`}>查看详情</a>
-                  </Card>
-                </Col>
+                  </div>
+                </Card>
               ))
             ) : (
-              <Col span={24}>
+              <div style={{ gridColumn: 'span 2', textAlign: 'center' }}>
                 <Card>
-                  <Text>暂无笔记</Text>
+                  <Text>暂无重要笔记，请在笔记详情页收藏笔记</Text>
                 </Card>
-              </Col>
+              </div>
             )}
-          </Row>
+          </div>
         </div>
       </Content>
     </Layout>
